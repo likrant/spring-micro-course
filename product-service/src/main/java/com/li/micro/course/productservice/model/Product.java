@@ -16,7 +16,7 @@ import java.util.UUID;
 public class Product {
 
     @Id
-    private UUID id;
+    private String id;
     private String name;
     private String description;
     private BigDecimal price;
@@ -25,11 +25,11 @@ public class Product {
         return new ProductBuilder();
     }
 
-    public UUID getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -58,12 +58,12 @@ public class Product {
     }
 
     public static class ProductBuilder{
-        private UUID id;
+        private String id;
         private String name;
         private String description;
         private BigDecimal price;
 
-        public ProductBuilder setId(UUID id) {
+        public ProductBuilder setId(String id) {
             this.id = id;
             return this;
         }

@@ -13,7 +13,7 @@ import java.util.UUID;
  * Time: 13:05
  */
 @Repository
-public interface ProductRepo extends MongoRepository<Product, UUID> {
+public interface ProductRepo extends MongoRepository<Product, String> {
 
 
 }
