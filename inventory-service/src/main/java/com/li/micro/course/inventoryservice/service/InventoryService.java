@@ -1,8 +1,11 @@
 package com.li.micro.course.inventoryservice.service;
 
+import com.li.micro.course.inventoryservice.dto.InventoryResponse;
 import com.li.micro.course.inventoryservice.repository.InventoryRepo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -20,9 +23,10 @@ public class InventoryService {
     }
 
     @Transactional(readOnly = true)
-    public boolean isInStock(String skuCode) {
-        return inventoryRepo.findBySkuCode(skuCode)
-                .map(inventory -> inventory.getQuantity() > 0)
-                .orElse(false);
+    public List<InventoryResponse> isInStock(List<String> skuCodes) {
+        return inventoryRepo.findBySkuCodeIn(skuCodes)
+                .stream()
+                .map(inventory ->
+                        new InventoryResponse(inventory.getSkuCode(), inventory.getQuantity() > 0)).toList();
     }
 }

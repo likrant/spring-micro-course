@@ -1,8 +1,11 @@
 package com.li.micro.course.inventoryservice.controller;
 
+import com.li.micro.course.inventoryservice.dto.InventoryResponse;
 import com.li.micro.course.inventoryservice.service.InventoryService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -21,9 +24,9 @@ public class InventoryController {
         this.inventoryService = inventoryService;
     }
 
-    @GetMapping("/{sku-code}")
+    @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public boolean isInStock(@PathVariable("sku-code") String skuCode) {
-        return inventoryService.isInStock(skuCode);
+    public List<InventoryResponse> isInStock(@RequestParam("sku-code") List<String> skuCodes) {
+        return inventoryService.isInStock(skuCodes);
     }
 }
