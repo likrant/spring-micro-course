@@ -6,6 +6,7 @@ import com.li.micro.course.orderservice.model.Order;
 import com.li.micro.course.orderservice.model.OrderLineItems;
 import com.li.micro.course.orderservice.repository.OrderRepo;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
  * Time: 21:28
  */
 @Service
+@Transactional
 public class OrderService {
 
     private final OrderRepo orderRepo;

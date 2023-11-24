@@ -1,12 +1,12 @@
-package com.li.micro.course.orderservice;
+package com.li.micro.course.inventoryservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class OrderServiceApplicationTests {
+class InventoryServiceApplicationTests {
 
-//	@Test
+	@Test
 	void contextLoads() {
 	}
 
