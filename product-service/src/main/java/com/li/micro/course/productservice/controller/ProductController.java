@@ -16,7 +16,7 @@ import java.util.List;
  * Time: 13:12
  */
 @RestController
-@RequestMapping("/api/v1/products")
+@RequestMapping("/api/v1/product")
 public class ProductController {
 
 
