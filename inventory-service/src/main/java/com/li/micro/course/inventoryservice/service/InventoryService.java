@@ -2,6 +2,8 @@ package com.li.micro.course.inventoryservice.service;
 
 import com.li.micro.course.inventoryservice.dto.InventoryResponse;
 import com.li.micro.course.inventoryservice.repository.InventoryRepo;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +18,7 @@ import java.util.List;
 @Service
 public class InventoryService {
 
+    private static final Logger log = LogManager.getLogger();
     private final InventoryRepo inventoryRepo;
 
     public InventoryService(InventoryRepo inventoryRepo) {

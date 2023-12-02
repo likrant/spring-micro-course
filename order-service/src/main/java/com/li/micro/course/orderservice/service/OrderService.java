@@ -33,7 +33,7 @@ public class OrderService {
         this.webClientBuilder = webClientBuilder;
     }
 
-    public void placeOrder(OrderRequest orderRequest) {
+    public String placeOrder(OrderRequest orderRequest) {
         List<String> skuCodes = orderRequest.getOrderLineItemsDtoList().stream().map(OrderLineItemsDto::getSkuCode).toList();
         InventoryResponse[] inventoryResponseArray = webClientBuilder.build().get()
                 .uri("http://inventory-service/api/v1/inventory",
@@ -51,6 +51,7 @@ public class OrderService {
         order.setOrderNumber(UUID.randomUUID().toString());
         order.setOrderLineItemsList(orderRequest.getOrderLineItemsDtoList().stream().map(this::mapToOrderLineItems).toList());
         orderRepo.save(order);
+        return "Order placed successfully";
     }
 
     OrderLineItems mapToOrderLineItems(OrderLineItemsDto orderLineItemsDto) {
