@@ -3,9 +3,11 @@ package com.li.micro.course.orderservice.service;
 import com.li.micro.course.orderservice.dto.InventoryResponse;
 import com.li.micro.course.orderservice.dto.OrderLineItemsDto;
 import com.li.micro.course.orderservice.dto.OrderRequest;
+import com.li.micro.course.orderservice.event.OrderPlaceEvent;
 import com.li.micro.course.orderservice.model.Order;
 import com.li.micro.course.orderservice.model.OrderLineItems;
 import com.li.micro.course.orderservice.repository.OrderRepo;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -13,7 +15,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * Created by IntelliJ IDEA.
@@ -27,10 +28,12 @@ public class OrderService {
 
     private final OrderRepo orderRepo;
     private final WebClient.Builder webClientBuilder;
+    private final KafkaTemplate<Object, OrderPlaceEvent> kafkaTemplate;
 
-    public OrderService(OrderRepo orderRepo, WebClient.Builder webClientBuilder) {
+    public OrderService(OrderRepo orderRepo, WebClient.Builder webClientBuilder, KafkaTemplate<Object, OrderPlaceEvent> kafkaTemplate) {
         this.orderRepo = orderRepo;
         this.webClientBuilder = webClientBuilder;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     public String placeOrder(OrderRequest orderRequest) {
@@ -51,6 +54,7 @@ public class OrderService {
         order.setOrderNumber(UUID.randomUUID().toString());
         order.setOrderLineItemsList(orderRequest.getOrderLineItemsDtoList().stream().map(this::mapToOrderLineItems).toList());
         orderRepo.save(order);
+        kafkaTemplate.send("notificationTopic",new OrderPlaceEvent(order.getOrderNumber()));
         return "Order placed successfully";
     }
 
