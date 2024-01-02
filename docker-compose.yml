@@ -1,6 +1,92 @@
 ---
 version: '3'
 services:
+
+  ## MSSQL Docker Compose Config
+  mssql-order:
+    container_name: mssql-order
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    environment:
+      MSSQL_DB: order-service
+      MSSQL_USER: sa
+      MSSQL_PASSWORD: Password123
+      MSSQL_DATA_DIR: /data/mssql
+      ACCEPT_EULA: Y
+    volumes:
+      - ./data/mssql-order:/data/mssql
+    expose:
+      - "1531"
+    ports:
+      - "1531:1531"
+    command: --port 1531
+    restart: unless-stopped
+
+  mssql-inventory:
+    container_name: mssql-inventory
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    environment:
+      MSSQL_DB: inventory-service
+      MSSQL_USER: sa
+      MSSQL_PASSWORD: Password123
+      MSSQL_DATA_DIR: /data/mssql
+      ACCEPT_EULA: Y
+    volumes:
+      - ./data/mssql-inventory:/data/mssql
+    expose:
+      - "1532"
+    ports:
+      - "1532:1532"
+    command: --port 1532
+    restart: unless-stopped
+
+  mongo:
+    container_name: mongo
+    image: mongo:latest
+    ports:
+      - "37017:37017"
+    expose:
+      - "37017"
+    volumes:
+      - ./data/mongo-data:/data/db
+    restart: unless-stopped
+
+  mssql-keycloak:
+    container_name: mssql-keycloak
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    environment:
+      MSSQL_DB: keycloak
+      MSSQL_USER: sa
+      MSSQL_PASSWORD: Password123
+      MSSQL_DATA_DIR: /data/mssql
+      ACCEPT_EULA: Y
+    volumes:
+      - ./data/mssql-keycloak:/data/mssql
+    expose:
+      - "1533"
+    ports:
+      - "1533:1533"
+    command: --port 1532
+    restart: unless-stopped
+
+  keycloak:
+    container_name: keycloak
+    image: quay.io/keycloak/keycloak:latest
+    command: [ "start-dev","--import-realm" ]
+    environment:
+      DB_VENDOR: mssql
+      DB_ADDR: mssql-keycloak
+      DB_DATABASE: keycloak
+      DB_USER: sa
+      DB_PASSWORD: Password123
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data/realms:/opt/keycloak/data/import
+    depends_on:
+      - mssql-keycloak
+
   # https://www.youtube.com/watch?v=jfbUwZwzC98
   jaeger:
     image: jaegertracing/all-in-one:latest
@@ -33,3 +119,37 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+
+  zipkin:
+    image: openzipkin/zipkin:latest
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+
+  ## Eureka Server
+  discovery-server:
+    container_name: discovery-server
+    image: likrant/discovery-server:latest
+    pull_policy: always
+    ports:
+      - "8761:8761"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - zipkin
+
+  api-gateway:
+    container_name: api-gateway
+    image: likrant/api-gateway:latest
+    pull_policy: always
+    ports:
+      - "8081:8080"
+    expose:
+      - "8181"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY=TRACE
+    depends_on:
+      - zipkin
+      - discovery-server
+      - keycloak

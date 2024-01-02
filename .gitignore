@@ -33,3 +33,4 @@ build/
 
 /config
 /keycloak_data
+/data
